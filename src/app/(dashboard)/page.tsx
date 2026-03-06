@@ -39,8 +39,8 @@ export default async function DashboardPage() {
 
   const [totalRes, mesRes, mesAnteriorRes, ultimosRes, todosEstadosRes, productosRes, chartRes] = await Promise.all([
     supabase.from("presupuestos").select("*", { count: "exact", head: true }),
-    supabase.from("presupuestos").select("total, estado").gte("creado_en", inicioMes.toISOString()),
-    supabase.from("presupuestos").select("total").gte("creado_en", inicioMesAnterior.toISOString()).lt("creado_en", inicioMes.toISOString()),
+    supabase.from("presupuestos").select("total, estado").gte("creado_en", inicioMes.toISOString()).neq("estado", "rechazado"),
+    supabase.from("presupuestos").select("total").gte("creado_en", inicioMesAnterior.toISOString()).lt("creado_en", inicioMes.toISOString()).neq("estado", "rechazado"),
     supabase.from("presupuestos").select("*").order("creado_en", { ascending: false }).limit(5),
     supabase.from("presupuestos").select("estado, total").gte("creado_en", inicio12Meses.toISOString()),
     supabase.from("productos_zinc").select("*", { count: "exact", head: true }).eq("activo", true),
