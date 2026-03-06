@@ -20,7 +20,7 @@ export async function GET() {
   const { data } = await supabase
     .from("configuracion")
     .select("clave, valor")
-    .in("clave", ["empresa_nombre"]);
+    .in("clave", ["empresa_nombre", "pdf_logo_url"]);
 
   const config = Object.fromEntries(
     (data ?? []).map((c: { clave: string; valor: string }) => [c.clave, c.valor])
@@ -28,5 +28,6 @@ export async function GET() {
 
   return NextResponse.json({
     empresaNombre: config.empresa_nombre || "Zinc Industrial",
+    logoUrl: config.pdf_logo_url || "",
   });
 }

@@ -276,7 +276,7 @@ Todas las tablas tienen RLS habilitado.
 | Política                            | Operación | Roles          | Condición                            |
 |-------------------------------------|-----------|----------------|--------------------------------------|
 | `configuracion_select_autenticados` | SELECT    | authenticated  | `true`                               |
-| `configuracion_select_publica_nombre` | SELECT  | anon           | `clave IN ('empresa_nombre')`        |
+| `configuracion_select_publica`      | SELECT    | anon           | `clave IN ('empresa_nombre', 'pdf_logo_url')` |
 | `configuracion_admin_modificar`     | ALL       | public         | `jwt->user_metadata->rol = 'admin'`  |
 
 ---

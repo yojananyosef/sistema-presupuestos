@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Leaf } from "lucide-react";
-import { useNombreEmpresa } from "@/hooks/use-nombre-empresa";
+import { useConfigPublica } from "@/hooks/use-nombre-empresa";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function RegistroPage() {
-  const { nombre: nombreEmpresa } = useNombreEmpresa();
+  const { nombre: nombreEmpresa, logoUrl } = useConfigPublica();
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [contrasena, setContrasena] = useState("");
@@ -58,9 +58,13 @@ export default function RegistroPage() {
       <div className="w-full max-w-md">
         <Card className="shadow-lg">
           <CardHeader className="text-center space-y-3">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-green-600 text-white">
-              <Leaf className="h-7 w-7" />
-            </div>
+            {logoUrl ? (
+              <img src={logoUrl} alt={nombreEmpresa} className="mx-auto h-14 w-14 rounded-2xl object-contain" />
+            ) : (
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-green-600 text-white">
+                <Leaf className="h-7 w-7" />
+              </div>
+            )}
             <CardTitle className="text-2xl">¡Cuenta creada!</CardTitle>
             <CardDescription>
               Tu cuenta ha sido registrada exitosamente. Ya puedes iniciar sesión.
@@ -80,9 +84,13 @@ export default function RegistroPage() {
     <div className="w-full max-w-md">
       <Card className="shadow-lg">
         <CardHeader className="text-center space-y-3">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-            <Leaf className="h-7 w-7" />
-          </div>
+          {logoUrl ? (
+            <img src={logoUrl} alt={nombreEmpresa} className="mx-auto h-14 w-14 rounded-2xl object-contain" />
+          ) : (
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+              <Leaf className="h-7 w-7" />
+            </div>
+          )}
           <CardTitle className="text-2xl">Crear Cuenta</CardTitle>
           <CardDescription>Regístrate para acceder al sistema</CardDescription>
         </CardHeader>
