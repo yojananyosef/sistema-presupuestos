@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
+// Forzar respuesta dinámica (sin cache)
+export const dynamic = "force-dynamic";
+
 // GET /api/configuracion/publica — Datos públicos de la empresa (sin auth)
 export async function GET() {
   const supabase = createServerClient(

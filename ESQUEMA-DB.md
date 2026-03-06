@@ -172,6 +172,35 @@ Configuraciones clave-valor del sistema.
 | `empresa_email`        | `ventas@zincindustrial.cl`     | Email de contacto                    |
 | `iva_porcentaje`       | `19`                           | Porcentaje de IVA                    |
 | `moneda`               | `CLP`                          | Moneda de los presupuestos           |
+| `pdf_logo_url`         | `https://...supabase.co/storage/v1/object/public/logos/empresa-logo` | URL pública del logo (Supabase Storage) |
+| `pdf_color_primario`   | `#0284c7`                      | Color primario del PDF               |
+| `pdf_color_cabecera`   | `#0f172a`                      | Color de cabecera del PDF            |
+| `pdf_pie_izquierdo`    | `Texto pie izquierdo`          | Texto del pie de página izquierdo    |
+| `pdf_pie_derecho`      | `Texto pie derecho`            | Texto del pie de página derecho      |
+
+---
+
+## Storage (Supabase Storage)
+
+### Bucket `logos`
+
+| Propiedad          | Valor                                          |
+|--------------------|-------------------------------------------------|
+| **ID/Nombre**      | `logos`                                          |
+| **Público**        | Sí                                               |
+| **Límite archivo** | 512 KB                                           |
+| **MIME permitidos** | `image/png`, `image/jpeg`, `image/webp`, `image/svg+xml` |
+| **Ruta del logo**  | `logos/empresa-logo`                             |
+| **URL pública**    | `https://gafhqzitmmjemmkzlrmc.supabase.co/storage/v1/object/public/logos/empresa-logo` |
+
+**Políticas RLS (`storage.objects`):**
+
+| Política                       | Operación | Roles         | Condición            |
+|--------------------------------|-----------|---------------|----------------------|
+| Admin puede subir logos        | INSERT    | authenticated | `bucket_id = 'logos'`|
+| Admin puede actualizar logos   | UPDATE    | authenticated | `bucket_id = 'logos'`|
+| Admin puede eliminar logos     | DELETE    | authenticated | `bucket_id = 'logos'`|
+| Lectura pública de logos       | SELECT    | public        | `bucket_id = 'logos'`|
 
 ---
 

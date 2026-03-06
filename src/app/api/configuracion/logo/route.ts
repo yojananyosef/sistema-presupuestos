@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { obtenerSesion } from "@/lib/auth/config";
 import { crearClienteServidor } from "@/lib/db/cliente-servidor";
-import { writeFile } from "fs/promises";
-import path from "path";
 
 const MAX_SIZE = 512 * 1024; // 512KB
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
-const FILE_NAME = "logo.png";
+const BUCKET = "logos";
+const FILE_PATH = "empresa-logo";
 
 export async function POST(req: NextRequest) {
   const sesion = await obtenerSesion();
@@ -35,17 +34,35 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-  const destPath = path.join(process.cwd(), "public", FILE_NAME);
+  const supabase = await crearClienteServidor();
 
-  await writeFile(destPath, buffer);
+  // Subir a Supabase Storage (upsert sobreescribe si ya existe)
+  const { error: errorStorage } = await supabase.storage
+    .from(BUCKET)
+    .upload(FILE_PATH, file, {
+      cacheControl: "3600",
+      upsert: true,
+      contentType: file.type,
+    });
+
+  if (errorStorage) {
+    return NextResponse.json(
+      { error: "Error al subir el archivo: " + errorStorage.message },
+      { status: 500 }
+    );
+  }
+
+  // Obtener URL pública
+  const { data: urlData } = supabase.storage
+    .from(BUCKET)
+    .getPublicUrl(FILE_PATH);
+
+  const publicUrl = urlData.publicUrl;
 
   // Guardar la referencia en configuración
-  const supabase = await crearClienteServidor();
   await supabase
     .from("configuracion")
-    .upsert({ clave: "pdf_logo_url", valor: `/${FILE_NAME}` }, { onConflict: "clave" });
+    .upsert({ clave: "pdf_logo_url", valor: publicUrl }, { onConflict: "clave" });
 
-  return NextResponse.json({ url: `/${FILE_NAME}` });
+  return NextResponse.json({ url: publicUrl });
 }
