@@ -20,7 +20,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Save, Building2, Package, Users, CheckCircle, FileText, Upload, Trash2 } from "lucide-react";
-import { invalidarCacheNombreEmpresa } from "@/hooks/use-nombre-empresa";
 
 interface ProductoZinc {
   id: string;
@@ -120,7 +119,7 @@ export default function ConfiguracionPage() {
       body: JSON.stringify({ accion: "configuracion", datos }),
     });
     if (res.ok) {
-      invalidarCacheNombreEmpresa();
+      router.refresh();
       mostrarExito("Configuración guardada");
     }
     setGuardando(false);
