@@ -152,7 +152,7 @@ src/
 |----------|--------|-------------|
 | `/api/widget/cotizar` | GET | Listar productos activos |
 | `/api/widget/cotizar` | POST | Calcular precio (producto, dimensiones, cantidad) |
-| `/api/contacto` | POST | Enviar solicitud de contacto/cotización |
+| `/api/contacto` | POST | Guardar solicitud de contacto/cotización en `solicitudes_contacto` |
 
 ---
 
@@ -203,7 +203,13 @@ Componente para crear y editar presupuestos.
 ├─────────────────────────────────────────────┤
 │  Tiempo ejecución · Condiciones             │
 ├─────────────────────────────────────────────┤
-│  [Guardar borrador]  [Guardar y emitir]     │
+│  [Guardar borrador]  [Emitir → Revisión]    │
+├─────────────────────────────────────────────┤
+│  🔤 Revisión ortográfica (lang="es")       │
+│  Muestra nombre, dirección, descripción,   │
+│  tiempo y condiciones para verificar        │
+│  antes de confirmar la emisión.             │
+│  [Volver a Editar]  [Confirmar y Emitir]    │
 └─────────────────────────────────────────────┘
 ```
 

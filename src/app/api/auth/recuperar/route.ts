@@ -30,7 +30,6 @@ export async function POST(request: NextRequest) {
   });
 
   if (error) {
-    console.log("[RECUPERAR] Error:", error.message);
     // No revelar si el email existe o no (seguridad)
     return NextResponse.json({ ok: true });
   }

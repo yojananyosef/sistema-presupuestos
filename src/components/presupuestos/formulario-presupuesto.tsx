@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Trash2, Save, Send, AlertCircle, GripVertical } from "lucide-react";
+import { Plus, Trash2, Save, Send, AlertCircle, GripVertical, SpellCheck, ArrowLeft } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -224,6 +224,7 @@ export function FormularioPresupuesto({ presupuestoId, datosIniciales }: Formula
   const [descripcion, setDescripcion] = useState(datosIniciales?.descripcion ?? "");
   const [tiempoEjecucion, setTiempoEjecucion] = useState(datosIniciales?.tiempoEjecucion ?? "");
   const [condiciones, setCondiciones] = useState(datosIniciales?.condiciones ?? "");
+  const [mostrarRevision, setMostrarRevision] = useState(false);
 
   useEffect(() => {
     fetch("/api/widget/cotizar")
@@ -289,6 +290,12 @@ export function FormularioPresupuesto({ presupuestoId, datosIniciales }: Formula
   const totales = calcularTotales(items.map((i) => i.precioTotal), 19);
 
   const guardar = async (estado: "borrador" | "emitido") => {
+    // Al emitir, mostrar paso de revisión primero
+    if (estado === "emitido" && !mostrarRevision) {
+      setMostrarRevision(true);
+      return;
+    }
+    setMostrarRevision(false);
     setError("");
     setCargando(true);
 
@@ -336,7 +343,7 @@ export function FormularioPresupuesto({ presupuestoId, datosIniciales }: Formula
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl" lang="es">
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
@@ -515,6 +522,71 @@ export function FormularioPresupuesto({ presupuestoId, datosIniciales }: Formula
       </Card>
 
       {/* Botones de acción */}
+      {mostrarRevision ? (
+        <Card className="border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+              <SpellCheck className="h-5 w-5" />
+              Revisión antes de emitir
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Revise la ortografía y los datos antes de emitir. Los campos de texto se muestran a continuación:
+            </p>
+            <div className="space-y-2 rounded-md border p-4 bg-background">
+              {datosCliente.clienteNombre && (
+                <div>
+                  <span className="text-xs font-medium text-muted-foreground">Cliente:</span>
+                  <p className="text-sm" spellCheck>{datosCliente.clienteNombre}</p>
+                </div>
+              )}
+              {datosCliente.clienteDireccion && (
+                <div>
+                  <span className="text-xs font-medium text-muted-foreground">Dirección:</span>
+                  <p className="text-sm" spellCheck>{datosCliente.clienteDireccion}</p>
+                </div>
+              )}
+              {descripcion && (
+                <div>
+                  <span className="text-xs font-medium text-muted-foreground">Descripción:</span>
+                  <p className="text-sm" spellCheck>{descripcion}</p>
+                </div>
+              )}
+              {tiempoEjecucion && (
+                <div>
+                  <span className="text-xs font-medium text-muted-foreground">Tiempo de ejecución:</span>
+                  <p className="text-sm" spellCheck>{tiempoEjecucion}</p>
+                </div>
+              )}
+              {condiciones && (
+                <div>
+                  <span className="text-xs font-medium text-muted-foreground">Condiciones:</span>
+                  <p className="text-sm whitespace-pre-line" spellCheck>{condiciones}</p>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-3 justify-end pt-2">
+              <Button
+                type="button"
+                onClick={() => setMostrarRevision(false)}
+                variant="outline"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Volver a Editar
+              </Button>
+              <Button
+                type="button"
+                onClick={() => guardar("emitido")}
+                disabled={cargando}
+              >
+                <Send className="h-4 w-4" />
+                {cargando ? "Emitiendo..." : "Confirmar y Emitir"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
       <div className="flex flex-col sm:flex-row gap-3 justify-end pb-20 md:pb-0">
         <Button type="button" onClick={() => router.back()} variant="outline">
           Cancelar
@@ -537,6 +609,7 @@ export function FormularioPresupuesto({ presupuestoId, datosIniciales }: Formula
           {cargando ? "Emitiendo..." : "Emitir Presupuesto"}
         </Button>
       </div>
+      )}
     </div>
   );
 }

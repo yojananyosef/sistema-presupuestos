@@ -19,8 +19,6 @@ export async function obtenerSesion(): Promise<{ user: SesionUsuario } | null> {
     error: userError,
   } = await supabase.auth.getUser();
 
-  console.log('[SESION] getUser result:', user?.email ?? 'null', 'error:', userError?.message ?? 'none');
-
   if (!user) return null;
 
   const { data: perfil, error: perfilError } = await supabase
@@ -28,8 +26,6 @@ export async function obtenerSesion(): Promise<{ user: SesionUsuario } | null> {
     .select("nombre, email, rol")
     .eq("id", user.id)
     .single();
-
-  console.log('[SESION] perfil:', perfil, 'error:', perfilError?.message ?? 'none');
 
   if (!perfil) return null;
 

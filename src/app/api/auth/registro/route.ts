@@ -7,7 +7,6 @@ export async function POST(request: NextRequest) {
 
   const validacion = esquemaRegistro.safeParse(body);
   if (!validacion.success) {
-    console.log("[REGISTRO] Zod error:", JSON.stringify(validacion.error.flatten()));
     return NextResponse.json(
       { error: "Datos inválidos", detalles: validacion.error.flatten() },
       { status: 400 }
@@ -44,7 +43,6 @@ export async function POST(request: NextRequest) {
   });
 
   if (error) {
-    console.log("[REGISTRO] Supabase error:", error.message);
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 

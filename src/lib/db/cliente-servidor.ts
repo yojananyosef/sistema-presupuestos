@@ -11,9 +11,7 @@ export async function crearClienteServidor() {
     {
       cookies: {
         getAll() {
-          const all = cookieStore.getAll();
-          console.log('[SERVER] getAll cookies:', all.map(c => c.name));
-          return all;
+          return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
           try {

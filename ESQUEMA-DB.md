@@ -44,6 +44,16 @@ auth.users (Supabase Auth)
 │ ancho_estandar_m │
 │ activo           │
 └──────────────────┘
+
+┌────────────────────────┐
+│ solicitudes_contacto   │
+│                        │
+│ id (PK)                │
+│ nombre, email          │
+│ producto_tipo          │
+│ dimensiones, precio    │
+│ leida                  │
+└────────────────────────┘
 ```
 
 ---
@@ -188,6 +198,27 @@ Configuraciones clave-valor del sistema.
 
 ---
 
+### `solicitudes_contacto`
+
+Solicitudes de cotización enviadas desde el widget público.
+
+| Columna          | Tipo                     | Nullable | Default            | Descripción                        |
+|------------------|--------------------------|----------|--------------------|------------------------------------||
+| `id`             | uuid **(PK)**            | NO       | `gen_random_uuid()`| Identificador único               |
+| `nombre`         | text                     | NO       | —                  | Nombre del solicitante             |
+| `email`          | text                     | NO       | —                  | Email del solicitante              |
+| `telefono`       | text                     | SÍ       | —                  | Teléfono de contacto               |
+| `producto_tipo`  | text                     | NO       | —                  | Tipo de producto cotizado          |
+| `ancho_m`        | real                     | NO       | —                  | Ancho solicitado (metros)          |
+| `largo_m`        | real                     | NO       | —                  | Largo solicitado (metros)          |
+| `cantidad`       | integer                  | NO       | —                  | Cantidad de unidades               |
+| `precio_estimado`| real                     | NO       | —                  | Precio estimado por el cotizador   |
+| `mensaje`        | text                     | SÍ       | —                  | Mensaje adicional                  |
+| `leida`          | boolean                  | NO       | `false`            | Si fue leída por admin             |
+| `creado_en`      | timestamp with time zone | NO       | `now()`            | Fecha de la solicitud              |
+
+---
+
 ## Storage (Supabase Storage)
 
 ### Bucket `logos`
@@ -287,6 +318,14 @@ Todas las tablas tienen RLS habilitado.
 | `configuracion_select_publica`      | SELECT    | anon           | `clave IN ('empresa_nombre', 'pdf_logo_url')` |
 | `configuracion_admin_modificar`     | ALL       | public         | `jwt->user_metadata->rol = 'admin'`  |
 
+### `solicitudes_contacto`
+| Política                                    | Operación | Roles          | Condición                                  |
+|--------------------------------------------|-----------|----------------|--------------------------------------------|
+| `solicitudes_contacto_insert_anon`         | INSERT    | anon           | `true` (widget público)                    |
+| `solicitudes_contacto_insert_auth`         | INSERT    | authenticated  | `true`                                     |
+| `solicitudes_contacto_admin_select`        | SELECT    | authenticated  | `(SELECT rol FROM perfiles WHERE id = auth.uid()) = 'admin'` |
+| `solicitudes_contacto_admin_update`        | UPDATE    | authenticated  | `(SELECT rol FROM perfiles WHERE id = auth.uid()) = 'admin'` |
+
 ---
 
 ## Flujo de Estados (Presupuestos)
@@ -315,7 +354,7 @@ borrador → emitido → aprobado      (solo admin)
 | Registro público | Los nuevos usuarios se registran con `rol = 'usuario'` automáticamente |
 | Cambio de contraseña | Usuarios autenticados pueden cambiar su contraseña vía `/api/auth/cambiar-contrasena` |
 | Recuperación de contraseña | Flujo público vía Supabase Auth: `/recuperar` → email → `/nueva-contrasena` |
-
+| Solicitudes de contacto | Las solicitudes del widget se almacenan en `solicitudes_contacto`. Admin puede verlas y marcarlas como leídas. |
 ---
 
 ## Rutas de Autenticación

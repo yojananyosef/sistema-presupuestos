@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
   const validacion = esquemaCrearPresupuesto.safeParse(body);
 
   if (!validacion.success) {
-    console.log('[PRESUPUESTOS POST] Validation error:', JSON.stringify(validacion.error.flatten(), null, 2));
     return NextResponse.json(
       { error: "Datos inválidos", detalles: validacion.error.flatten() },
       { status: 400 }
