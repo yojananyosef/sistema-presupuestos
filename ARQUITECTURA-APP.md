@@ -120,18 +120,20 @@ src/
 | `/api/auth/recuperar` | POST | Enviar email de recuperación |
 | `/api/auth/cambiar-contrasena` | POST | Cambiar contraseña (requiere sesión) |
 
-### Presupuestos (Protegidas)
+### Presupuestos (Protegidas — filtradas por usuario)
+
+> **Autorización:** Usuarios normales solo acceden a sus propios presupuestos. Admin ve y gestiona todos.
 
 | Endpoint | Método | Descripción |
 |----------|--------|-------------|
-| `/api/presupuestos` | GET | Listar con paginación, filtros (estado, búsqueda, fechas, montos) |
-| `/api/presupuestos` | POST | Crear presupuesto (genera correlativo automático con `siguiente_correlativo()`) |
-| `/api/presupuestos/[id]` | GET | Detalle de un presupuesto |
-| `/api/presupuestos/[id]` | PUT | Actualizar datos o cambiar estado |
+| `/api/presupuestos` | GET | Listar **propios** (admin: todos) con paginación y filtros |
+| `/api/presupuestos` | POST | Crear presupuesto (genera correlativo automático) |
+| `/api/presupuestos/[id]` | GET | Detalle (valida propiedad, 403 si ajeno) |
+| `/api/presupuestos/[id]` | PUT | Actualizar o cambiar estado (valida propiedad) |
 | `/api/presupuestos/[id]` | DELETE | Eliminar (solo admin) |
 | `/api/presupuestos/[id]/pdf` | GET | Generar y descargar PDF |
-| `/api/presupuestos/[id]/historial` | GET | Historial de auditoría |
-| `/api/presupuestos/exportar` | GET | Exportar a Excel/CSV |
+| `/api/presupuestos/[id]/historial` | GET | Historial de auditoría (valida propiedad) |
+| `/api/presupuestos/exportar` | GET | Exportar **propios** a Excel/CSV (admin: todos) |
 | `/api/presupuestos/importar` | POST | Importar desde Excel |
 | `/api/presupuestos/importar/plantilla` | GET | Descargar plantilla Excel |
 
@@ -277,11 +279,13 @@ Componente para crear y editar presupuestos.
 ```
 
 **Restricciones:**
+- Usuarios solo ven/editan/exportan **sus propios** presupuestos (admin ve todo)
 - Solo admin puede aprobar o rechazar
 - Los presupuestos aprobados/rechazados no se pueden editar
 - Solo borradores se pueden editar (o admin para cualquiera)
 - Solo admin puede eliminar presupuestos
 - Cada cambio de estado se registra en `historial_presupuestos`
+- Acceder a presupuesto ajeno retorna 403 Forbidden
 
 ---
 

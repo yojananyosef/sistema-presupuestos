@@ -25,6 +25,11 @@ export async function GET(request: NextRequest) {
     .from("presupuestos")
     .select("correlativo, cliente_nombre, cliente_rut, cliente_email, cliente_telefono, descripcion, items, subtotal, iva, total, estado, creado_en");
 
+  // Usuarios normales solo exportan sus propios presupuestos
+  if (sesion.user.rol !== "admin") {
+    query = query.eq("usuario_id", sesion.user.id);
+  }
+
   if (estado) query = query.eq("estado", estado);
   if (busqueda) query = query.ilike("cliente_nombre", `%${busqueda}%`);
   if (fechaDesde) query = query.gte("creado_en", `${fechaDesde}T00:00:00`);

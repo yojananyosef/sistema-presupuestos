@@ -14,6 +14,19 @@ export async function GET(
   const { id } = await params;
   const supabase = await crearClienteServidor();
 
+  // Verificar propiedad del presupuesto
+  if (sesion.user.rol !== "admin") {
+    const { data: presupuesto } = await supabase
+      .from("presupuestos")
+      .select("usuario_id")
+      .eq("id", id)
+      .single();
+
+    if (!presupuesto || presupuesto.usuario_id !== sesion.user.id) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+    }
+  }
+
   const { data, error } = await supabase
     .from("historial_presupuestos")
     .select("*, perfiles(nombre)")

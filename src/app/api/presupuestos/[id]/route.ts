@@ -26,6 +26,11 @@ export async function GET(
     return NextResponse.json({ error: "Presupuesto no encontrado" }, { status: 404 });
   }
 
+  // Verificar propiedad: solo el dueño o admin pueden ver
+  if (presupuesto.usuario_id !== sesion.user.id && sesion.user.rol !== "admin") {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+
   return NextResponse.json(presupuesto);
 }
 
@@ -51,6 +56,11 @@ export async function PUT(
 
   if (!existente) {
     return NextResponse.json({ error: "Presupuesto no encontrado" }, { status: 404 });
+  }
+
+  // Verificar propiedad: solo el dueño o admin pueden editar
+  if (existente.usuario_id !== sesion.user.id && sesion.user.rol !== "admin") {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 
   // Solo borradores editables (o admin puede editar cualquiera)

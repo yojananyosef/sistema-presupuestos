@@ -22,6 +22,11 @@ export async function GET(request: NextRequest) {
     .from("presupuestos")
     .select("*, perfiles(nombre)", { count: "exact" });
 
+  // Usuarios normales solo ven sus propios presupuestos
+  if (sesion.user.rol !== "admin") {
+    query = query.eq("usuario_id", sesion.user.id);
+  }
+
   if (estado) {
     query = query.eq("estado", estado);
   }

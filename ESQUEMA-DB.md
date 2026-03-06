@@ -297,7 +297,10 @@ borrador → emitido → aprobado      (solo admin)
 
 | Regla | Descripción |
 |-------|-------------|
+| Aislamiento por usuario | Cada usuario solo ve, edita, exporta y accede al historial de **sus propios** presupuestos. Admin ve todo. |
 | Solo admin aprueba/rechaza | La API `/api/presupuestos/[id]` (PUT) valida que `rol = 'admin'` para estados `aprobado` y `rechazado` |
+| Validación de propiedad | GET, PUT y historial de `/api/presupuestos/[id]` verifican `usuario_id = sesion.user.id` (o admin). Retorna 403 si no es dueño. |
+| Export filtrado | `/api/presupuestos/exportar` filtra por `usuario_id` a menos que sea admin |
 | No desactivar admin | La API `/api/configuracion` (PUT, toggleUsuario) impide desactivar usuarios con `rol = 'admin'` |
 | Registro público | Los nuevos usuarios se registran con `rol = 'usuario'` automáticamente |
 | Cambio de contraseña | Usuarios autenticados pueden cambiar su contraseña vía `/api/auth/cambiar-contrasena` |
