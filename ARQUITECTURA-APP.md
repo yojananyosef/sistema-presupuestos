@@ -56,7 +56,7 @@ src/
 │   └── use-nombre-empresa.ts     # Hook para obtener nombre empresa (con cache)
 ├── lib/
 │   ├── auth/config.ts            # obtenerSesion() — validación de sesión
-│   ├── calculos/precios-zinc.ts  # Lógica de cálculo de precios
+│   ├── calculos/precios-zinc.ts  # Cálculo de precios + redondearMoneda()
 │   ├── db/cliente.ts             # Supabase client (browser)
 │   ├── db/cliente-servidor.ts    # Supabase client (server)
 │   ├── pdf/                      # Generación PDF (@react-pdf/renderer)
@@ -127,9 +127,9 @@ src/
 | Endpoint | Método | Descripción |
 |----------|--------|-------------|
 | `/api/presupuestos` | GET | Listar **propios** (admin: todos) con paginación y filtros |
-| `/api/presupuestos` | POST | Crear presupuesto (genera correlativo automático) |
+| `/api/presupuestos` | POST | Crear presupuesto (recalcula precios server-side, genera correlativo automático) |
 | `/api/presupuestos/[id]` | GET | Detalle (valida propiedad, 403 si ajeno) |
-| `/api/presupuestos/[id]` | PUT | Actualizar o cambiar estado (valida propiedad) |
+| `/api/presupuestos/[id]` | PUT | Actualizar o cambiar estado (valida propiedad, recalcula precios server-side) |
 | `/api/presupuestos/[id]` | DELETE | Eliminar (solo admin) |
 | `/api/presupuestos/[id]/pdf` | GET | Generar y descargar PDF |
 | `/api/presupuestos/[id]/historial` | GET | Historial de auditoría (valida propiedad) |
@@ -247,6 +247,10 @@ Componente para crear y editar presupuestos.
 │  (cantidad y monto por mes)                │
 └────────────────────────────────────────────┘
 ┌────────────────────────────────────────────┐
+│  📊 Por Estado — Últimos 12 meses          │
+│  (distribución con barras de progreso)     │
+└────────────────────────────────────────────┘
+┌────────────────────────────────────────────┐
 │  Tabla: Presupuestos recientes             │
 └────────────────────────────────────────────┘
 ```
@@ -316,14 +320,16 @@ PASO 1                    PASO 2                    PASO 3
                                                   └─────────────┘
 ```
 
-**Cálculo de precios** (`calcularPrecioZinc()`):
+**Cálculo de precios** (`calcularPrecioZinc()` + `redondearMoneda()`):
 ```
-precio_unitario = precio_por_m2 × ancho × largo
+precio_unitario = redondearMoneda(precio_por_m2 × ancho × largo)
 si precio_unitario < precio_minimo → precio_unitario = precio_minimo
-precio_total = precio_unitario × cantidad
-iva = subtotal × (iva_porcentaje / 100)
+precio_total = redondearMoneda(precio_unitario × cantidad)
+iva = redondearMoneda(subtotal × (iva_porcentaje / 100))
 total = subtotal + iva
 ```
+
+> **Nota:** En POST y PUT de presupuestos, el servidor recalcula todos los precios usando los datos de `productos_zinc`. Los valores de precio enviados por el cliente son ignorados para prevenir manipulación.
 
 ---
 

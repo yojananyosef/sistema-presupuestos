@@ -94,6 +94,14 @@ Presupuestos/cotizaciones creados por los usuarios.
 
 **FK:** `presupuestos.usuario_id` → `perfiles.id`
 
+**Índices:**
+
+| Índice | Columna(s) | Propósito |
+|--------|------------|----------|
+| `idx_presupuestos_usuario_id` | `usuario_id` | Filtro por dueño (aislamiento por usuario) |
+| `idx_presupuestos_estado` | `estado` | Filtro por estado en listados y dashboard |
+| `idx_presupuestos_creado_en` | `creado_en DESC` | Ordenamiento cronológico y rangos temporales |
+
 **Estructura de `items` (JSONB):**
 ```json
 [
@@ -301,6 +309,8 @@ borrador → emitido → aprobado      (solo admin)
 | Solo admin aprueba/rechaza | La API `/api/presupuestos/[id]` (PUT) valida que `rol = 'admin'` para estados `aprobado` y `rechazado` |
 | Validación de propiedad | GET, PUT y historial de `/api/presupuestos/[id]` verifican `usuario_id = sesion.user.id` (o admin). Retorna 403 si no es dueño. |
 | Export filtrado | `/api/presupuestos/exportar` filtra por `usuario_id` a menos que sea admin |
+| Recálculo server-side | POST y PUT de presupuestos **recalculan todos los precios** en el servidor usando `productos_zinc.precio_por_m2` y `precio_minimo`. Los precios enviados por el cliente son ignorados. |
+| Redondeo centralizado | Todos los cálculos monetarios usan `redondearMoneda()` para evitar acumulación de errores de punto flotante. El unitario se redondea ANTES de multiplicar por cantidad. |
 | No desactivar admin | La API `/api/configuracion` (PUT, toggleUsuario) impide desactivar usuarios con `rol = 'admin'` |
 | Registro público | Los nuevos usuarios se registran con `rol = 'usuario'` automáticamente |
 | Cambio de contraseña | Usuarios autenticados pueden cambiar su contraseña vía `/api/auth/cambiar-contrasena` |

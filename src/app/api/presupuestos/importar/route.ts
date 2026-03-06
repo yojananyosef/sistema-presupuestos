@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { crearClienteServidor } from "@/lib/db/cliente-servidor";
 import { obtenerSesion } from "@/lib/auth/config";
 import * as XLSX from "xlsx";
+import { redondearMoneda } from "@/lib/calculos/precios-zinc";
 
 interface FilaExcel {
   cliente_nombre?: string;
@@ -139,7 +140,8 @@ export async function POST(request: NextRequest) {
       if (precioUnitario < producto.precio_minimo) {
         precioUnitario = producto.precio_minimo;
       }
-      const precioTotal = Math.round(precioUnitario * cantidad);
+      precioUnitario = redondearMoneda(precioUnitario);
+      const precioTotal = redondearMoneda(precioUnitario * cantidad);
 
       items.push({
         descripcion: producto.nombre,
@@ -147,8 +149,8 @@ export async function POST(request: NextRequest) {
         cantidad,
         anchoM,
         largoM,
-        m2: Math.round(m2 * 100) / 100,
-        precioUnitario: Math.round(precioUnitario),
+        m2: redondearMoneda(m2, 2),
+        precioUnitario,
         precioTotal,
       });
     }
@@ -159,7 +161,7 @@ export async function POST(request: NextRequest) {
     }
 
     const subtotal = items.reduce((sum, it) => sum + it.precioTotal, 0);
-    const iva = Math.round(subtotal * (ivaPorcentaje / 100));
+    const iva = redondearMoneda(subtotal * (ivaPorcentaje / 100));
     const total = subtotal + iva;
 
     // Obtener correlativo

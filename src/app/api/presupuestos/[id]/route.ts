@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { crearClienteServidor } from "@/lib/db/cliente-servidor";
 import { obtenerSesion } from "@/lib/auth/config";
 import { esquemaActualizarPresupuesto } from "@/lib/validaciones/esquemas";
+import { redondearMoneda } from "@/lib/calculos/precios-zinc";
+import type { ItemPresupuesto } from "@/types";
 
 // GET /api/presupuestos/[id] — Detalle de un presupuesto
 export async function GET(
@@ -106,13 +108,53 @@ export async function PUT(
   }
 
   if (datos.items) {
-    const items = datos.items;
+    // Obtener productos para recalcular precios server-side
+    const productoIds = [...new Set(datos.items.map((item) => item.productoId))];
+    const { data: productosDb } = await supabase
+      .from("productos_zinc")
+      .select("id, precio_por_m2, precio_minimo")
+      .in("id", productoIds)
+      .eq("activo", true);
+
+    if (!productosDb || productosDb.length !== productoIds.length) {
+      return NextResponse.json(
+        { error: "Uno o más productos no encontrados o inactivos" },
+        { status: 400 }
+      );
+    }
+
+    const productosMap = new Map(productosDb.map((p) => [p.id, p]));
+
+    const items: ItemPresupuesto[] = datos.items.map((item) => {
+      const producto = productosMap.get(item.productoId)!;
+      const m2PorUnidad = item.anchoM * item.largoM;
+      let precioUnitario = producto.precio_por_m2 * m2PorUnidad;
+      if (precioUnitario < producto.precio_minimo) {
+        precioUnitario = producto.precio_minimo;
+      }
+      precioUnitario = redondearMoneda(precioUnitario);
+      return {
+        descripcion: item.descripcion,
+        productoId: item.productoId,
+        cantidad: item.cantidad,
+        anchoM: item.anchoM,
+        largoM: item.largoM,
+        m2: redondearMoneda(m2PorUnidad * item.cantidad, 2),
+        precioUnitario,
+        precioTotal: redondearMoneda(precioUnitario * item.cantidad),
+      };
+    });
+
+    // Obtener IVA desde configuración
+    const { data: configIva } = await supabase
+      .from("configuracion")
+      .select("valor")
+      .eq("clave", "iva_porcentaje")
+      .single();
+    const ivaPorcentaje = parseFloat(configIva?.valor ?? "19");
+
     const subtotal = items.reduce((sum, item) => sum + item.precioTotal, 0);
-    const ivaPorcentaje =
-      existente.subtotal > 0
-        ? (existente.iva / existente.subtotal) * 100
-        : 19;
-    const iva = Math.round(subtotal * (ivaPorcentaje / 100));
+    const iva = redondearMoneda(subtotal * (ivaPorcentaje / 100));
     const total = subtotal + iva;
 
     valoresActualizar.items = items;

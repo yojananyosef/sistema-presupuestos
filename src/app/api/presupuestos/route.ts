@@ -3,6 +3,7 @@ import { crearClienteServidor } from "@/lib/db/cliente-servidor";
 import { obtenerSesion } from "@/lib/auth/config";
 import { esquemaCrearPresupuesto } from "@/lib/validaciones/esquemas";
 import type { ItemPresupuesto } from "@/types";
+import { redondearMoneda } from "@/lib/calculos/precios-zinc";
 
 // GET /api/presupuestos — Listar presupuestos con filtros y paginación
 export async function GET(request: NextRequest) {
@@ -96,10 +97,46 @@ export async function POST(request: NextRequest) {
 
   const ivaPorcentaje = parseFloat(configIva?.valor ?? "19");
 
-  // Calcular totales
-  const items = datos.items as ItemPresupuesto[];
+  // Obtener productos para recalcular precios server-side
+  const productoIds = [...new Set(datos.items.map((item) => item.productoId))];
+  const { data: productosDb } = await supabase
+    .from("productos_zinc")
+    .select("id, precio_por_m2, precio_minimo")
+    .in("id", productoIds)
+    .eq("activo", true);
+
+  if (!productosDb || productosDb.length !== productoIds.length) {
+    return NextResponse.json(
+      { error: "Uno o más productos no encontrados o inactivos" },
+      { status: 400 }
+    );
+  }
+
+  const productosMap = new Map(productosDb.map((p) => [p.id, p]));
+
+  // Recalcular precios server-side (no confiar en valores del cliente)
+  const items: ItemPresupuesto[] = datos.items.map((item) => {
+    const producto = productosMap.get(item.productoId)!;
+    const m2PorUnidad = item.anchoM * item.largoM;
+    let precioUnitario = producto.precio_por_m2 * m2PorUnidad;
+    if (precioUnitario < producto.precio_minimo) {
+      precioUnitario = producto.precio_minimo;
+    }
+    precioUnitario = redondearMoneda(precioUnitario);
+    return {
+      descripcion: item.descripcion,
+      productoId: item.productoId,
+      cantidad: item.cantidad,
+      anchoM: item.anchoM,
+      largoM: item.largoM,
+      m2: redondearMoneda(m2PorUnidad * item.cantidad, 2),
+      precioUnitario,
+      precioTotal: redondearMoneda(precioUnitario * item.cantidad),
+    };
+  });
+
   const subtotal = items.reduce((sum, item) => sum + item.precioTotal, 0);
-  const iva = Math.round(subtotal * (ivaPorcentaje / 100));
+  const iva = redondearMoneda(subtotal * (ivaPorcentaje / 100));
   const total = subtotal + iva;
 
   const { data: nuevoPresupuesto, error: insertError } = await supabase

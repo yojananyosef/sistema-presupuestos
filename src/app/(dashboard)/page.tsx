@@ -35,13 +35,14 @@ export default async function DashboardPage() {
 
   // Inicio para los últimos 6 meses (para el chart)
   const inicio6Meses = new Date(ahora.getFullYear(), ahora.getMonth() - 5, 1);
+  const inicio12Meses = new Date(ahora.getFullYear(), ahora.getMonth() - 11, 1);
 
   const [totalRes, mesRes, mesAnteriorRes, ultimosRes, todosEstadosRes, productosRes, chartRes] = await Promise.all([
     supabase.from("presupuestos").select("*", { count: "exact", head: true }),
     supabase.from("presupuestos").select("total, estado").gte("creado_en", inicioMes.toISOString()),
     supabase.from("presupuestos").select("total").gte("creado_en", inicioMesAnterior.toISOString()).lt("creado_en", inicioMes.toISOString()),
     supabase.from("presupuestos").select("*").order("creado_en", { ascending: false }).limit(5),
-    supabase.from("presupuestos").select("estado, total"),
+    supabase.from("presupuestos").select("estado, total").gte("creado_en", inicio12Meses.toISOString()),
     supabase.from("productos_zinc").select("*", { count: "exact", head: true }).eq("activo", true),
     supabase.from("presupuestos").select("creado_en, total").gte("creado_en", inicio6Meses.toISOString()).order("creado_en", { ascending: true }),
   ]);
@@ -62,6 +63,8 @@ export default async function DashboardPage() {
     estadosMap[p.estado] = (estadosMap[p.estado] ?? 0) + 1;
     montosPorEstado[p.estado] = (montosPorEstado[p.estado] ?? 0) + (p.total ?? 0);
   });
+
+  const totalConEstado = Object.values(estadosMap).reduce((a, b) => a + b, 0);
 
   const totalConDecision = (estadosMap.aprobado ?? 0) + (estadosMap.rechazado ?? 0);
   const tasaAprobacion = totalConDecision > 0 ? Math.round(((estadosMap.aprobado ?? 0) / totalConDecision) * 100) : 0;
@@ -139,13 +142,13 @@ export default async function DashboardPage() {
               <BarChart3 className="h-4 w-4" />
               Por Estado
             </CardTitle>
-            <CardDescription>Distribución general</CardDescription>
+            <CardDescription>Últimos 12 meses</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {(["borrador", "emitido", "aprobado", "rechazado"] as const).map((estado) => {
               const cantidad = estadosMap[estado] ?? 0;
               const monto = montosPorEstado[estado] ?? 0;
-              const porcentaje = totalPresupuestos > 0 ? Math.round((cantidad / totalPresupuestos) * 100) : 0;
+              const porcentaje = totalConEstado > 0 ? Math.round((cantidad / totalConEstado) * 100) : 0;
               return (
                 <div key={estado} className="space-y-2">
                   <div className="flex items-center justify-between">
