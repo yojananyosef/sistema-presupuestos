@@ -20,7 +20,7 @@ interface SidebarProps {
   logoUrl?: string;
 }
 
-export function Sidebar({ rol, nombreEmpresa = "Zinc Industrial", logoUrl }: SidebarProps) {
+export function Sidebar({ rol, nombreEmpresa = "Mi Empresa", logoUrl }: SidebarProps) {
   const pathname = usePathname();
   const items = rol === "admin" ? [...navegacionBase, ...navegacionAdmin] : navegacionBase;
 

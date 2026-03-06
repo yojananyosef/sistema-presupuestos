@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 
-export function useConfigPublica(fallbackNombre = "Zinc Industrial") {
+export function useConfigPublica(fallbackNombre = "Mi Empresa") {
   const [nombre, setNombre] = useState(fallbackNombre);
   const [logoUrl, setLogoUrl] = useState("");
 
@@ -24,7 +24,7 @@ export function useConfigPublica(fallbackNombre = "Zinc Industrial") {
 }
 
 /** @deprecated Usa useConfigPublica */
-export function useNombreEmpresa(fallback = "Zinc Industrial") {
+export function useNombreEmpresa(fallback = "Mi Empresa") {
   const { nombre, refetch } = useConfigPublica(fallback);
   return { nombre, refetch };
 }

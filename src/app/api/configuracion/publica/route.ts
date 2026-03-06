@@ -27,7 +27,7 @@ export async function GET() {
   );
 
   return NextResponse.json({
-    empresaNombre: config.empresa_nombre || "Zinc Industrial",
+    empresaNombre: config.empresa_nombre || "Mi Empresa",
     logoUrl: config.pdf_logo_url || "",
   });
 }

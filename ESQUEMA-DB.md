@@ -1,4 +1,4 @@
-# Esquema de Base de Datos — Sistema Presupuestos Zinc
+# Esquema de Base de Datos — Sistema de Presupuestos
 
 **Motor:** PostgreSQL 17 (Supabase)  
 **Proyecto:** `gafhqzitmmjemmkzlrmc` — Región `sa-east-1`
@@ -165,11 +165,11 @@ Configuraciones clave-valor del sistema.
 | Clave                  | Ejemplo de valor               | Descripción                          |
 |------------------------|--------------------------------|--------------------------------------|
 | `correlativo_siguiente`| `3`                            | Próximo número de correlativo        |
-| `empresa_nombre`       | `Zinc Industrial S.A.`         | Nombre de la empresa                 |
-| `empresa_rut`          | `76.XXX.XXX-X`                 | RUT de la empresa                    |
-| `empresa_direccion`    | `Av. Industrial 1234, Santiago`| Dirección                            |
-| `empresa_telefono`     | `+56 2 2345 6789`              | Teléfono                             |
-| `empresa_email`        | `ventas@zincindustrial.cl`     | Email de contacto                    |
+| `empresa_nombre`       | `Acme Corp S.A.`               | Nombre de la empresa                 |
+| `empresa_rut`          | `76.123.456-7`                 | RUT/ID fiscal de la empresa          |
+| `empresa_direccion`    | `Calle Principal 123, Ciudad`  | Dirección                            |
+| `empresa_telefono`     | `+1 234 567 8900`              | Teléfono                             |
+| `empresa_email`        | `contacto@empresa.com`         | Email de contacto                    |
 | `iva_porcentaje`       | `19`                           | Porcentaje de IVA                    |
 | `moneda`               | `CLP`                          | Moneda de los presupuestos           |
 | `pdf_logo_url`         | `https://...supabase.co/storage/v1/object/public/logos/empresa-logo` | URL pública del logo (Supabase Storage) |

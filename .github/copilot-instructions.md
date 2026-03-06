@@ -1,12 +1,12 @@
-# Sistema de Presupuestos y Cotizaciones Zinc
+# Sistema de Presupuestos y Cotizaciones
 
 ## Proyecto
-Aplicación full-stack monolítica en Next.js (App Router) con TypeScript. Dos módulos: (A) Generador de presupuestos interno y (B) Widget calculadora pública embebible.
+Aplicación full-stack monolítica en Next.js (App Router) con TypeScript. Dos módulos: (A) Generador de presupuestos interno y (B) Widget calculadora pública embebible. Diseñado como plantilla white-label adaptable a cualquier empresa.
 
 ## Stack
 - Next.js 15+ con App Router y TypeScript
-- Turso (libSQL) + Drizzle ORM
-- Auth.js v5 (Credentials Provider + bcrypt)
+- Turso (libSQL) + Drizzle ORM (nota: migrado a Supabase + PostgreSQL)
+- Auth.js v5 (nota: migrado a Supabase Auth)
 - Tailwind CSS v4
 - @react-pdf/renderer para PDFs
 - Zod para validación

@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Leaf, ChevronRight, ArrowLeft, Calculator, Send, CheckCircle, AlertCircle } from "lucide-react";
+import { useConfigPublica } from "@/hooks/use-nombre-empresa";
 
 interface ProductoZinc {
   id: string;
@@ -39,6 +40,7 @@ interface ResultadoCotizacion {
 type Paso = "producto" | "medidas" | "resultado";
 
 export default function WidgetPage() {
+  const { nombre: nombreEmpresa } = useConfigPublica();
   const [paso, setPaso] = useState<Paso>("producto");
   const [productos, setProductos] = useState<ProductoZinc[]>([]);
   const [productoSel, setProductoSel] = useState<ProductoZinc | null>(null);
@@ -125,7 +127,7 @@ export default function WidgetPage() {
         <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 mb-3">
           <Leaf className="h-5 w-5 text-primary" />
         </div>
-        <h1 className="text-xl font-bold tracking-tight">Cotizador de Zinc</h1>
+        <h1 className="text-xl font-bold tracking-tight">Cotizador</h1>
         <p className="text-sm text-muted-foreground mt-1">Calcula tu presupuesto al instante</p>
       </div>
 
@@ -364,7 +366,7 @@ export default function WidgetPage() {
 
       {/* Footer */}
       <div className="text-center mt-8 text-xs text-muted-foreground">
-        Powered by Zinc Industrial • Los precios son referenciales
+        Powered by {nombreEmpresa} • Los precios son referenciales
       </div>
     </div>
   );

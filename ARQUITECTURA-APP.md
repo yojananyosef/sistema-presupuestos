@@ -1,14 +1,14 @@
-# Arquitectura de la Aplicación — Sistema Presupuestos Zinc
+# Arquitectura de la Aplicación — Sistema de Presupuestos
 
 **Stack:** Next.js 16 (App Router) · TypeScript · Supabase · Tailwind CSS v4 · Bun  
-**Deploy:** Vercel — `https://sistema-presupuestos-swart.vercel.app`  
-**Supabase:** Proyecto `gafhqzitmmjemmkzlrmc` — Región `sa-east-1`
+**Deploy:** Vercel  
+**Supabase:** PostgreSQL 17
 
 ---
 
 ## Visión General
 
-Sistema de presupuestos y cotizaciones para una empresa de productos de zinc. Tiene dos módulos:
+Plantilla white-label de presupuestos y cotizaciones adaptable a cualquier empresa. Tiene dos módulos:
 
 - **Módulo A — Dashboard interno:** Gestión de presupuestos, usuarios, productos y configuración de la empresa. Protegido por autenticación.
 - **Módulo B — Widget público:** Calculadora de precios embebible para clientes externos. Sin autenticación.

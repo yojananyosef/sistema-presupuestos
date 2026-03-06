@@ -9,8 +9,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Sistema de Presupuestos — Zinc Industrial",
-  description: "Sistema de generación de presupuestos y cotización de productos de zinc",
+  title: "Sistema de Presupuestos y Cotizaciones",
+  description: "Sistema de gestión de presupuestos, cotizaciones y productos",
 };
 
 export default function RootLayout({

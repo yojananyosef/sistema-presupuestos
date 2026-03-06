@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Cotizador Zinc — Widget",
-  description: "Calcula el precio de planchas de zinc de forma rápida",
+  title: "Cotizador — Widget",
+  description: "Calcula el precio de productos de forma rápida",
 };
 
 export default function WidgetLayout({ children }: { children: React.ReactNode }) {

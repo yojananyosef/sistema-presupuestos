@@ -1,6 +1,6 @@
-# Sistema de Presupuestos y Cotizaciones Zinc
+# Sistema de Presupuestos y Cotizaciones
 
-Sistema web completo para la gestión de presupuestos y cotizaciones de productos de zinc industrial. Permite crear, emitir, aprobar y exportar presupuestos en PDF, además de ofrecer un widget público de cotización embebible.
+Plantilla white-label para gestión de presupuestos y cotizaciones. Permite crear, emitir, aprobar y exportar presupuestos en PDF, además de ofrecer un widget público de cotización embebible. Adaptable a cualquier empresa vía panel de configuración.
 
 ## Funcionalidades
 
@@ -91,7 +91,7 @@ src/
 ```bash
 # Clonar repositorio
 git clone <url-del-repo>
-cd sistema-presupuestos-zinc
+cd sistema-presupuestos
 
 # Instalar dependencias
 bun install
