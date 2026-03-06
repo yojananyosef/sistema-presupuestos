@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { crearClienteServidor } from "@/lib/db/cliente-servidor";
+import { obtenerSesion } from "@/lib/auth/config";
 import { formatearMoneda, formatearFecha, colorEstado, formatearCorrelativo } from "@/lib/utils";
 import type { ItemPresupuesto } from "@/types";
 import { CambiarEstado } from "@/components/presupuestos/vista-presupuesto";
@@ -18,6 +19,7 @@ interface Props {
 
 export default async function DetallePresupuestoPage({ params }: Props) {
   const { id } = await params;
+  const sesion = await obtenerSesion();
   const supabase = await crearClienteServidor();
 
   const { data: presupuesto } = await supabase
@@ -69,7 +71,7 @@ export default async function DetallePresupuestoPage({ params }: Props) {
       </div>
 
       {/* Cambiar Estado */}
-      <CambiarEstado presupuestoId={id} estadoActual={presupuesto.estado} />
+      <CambiarEstado presupuestoId={id} estadoActual={presupuesto.estado} rolUsuario={sesion?.user.rol ?? "usuario"} />
 
       {/* Datos del Cliente */}
       <Card>

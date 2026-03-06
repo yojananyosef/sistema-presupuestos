@@ -11,6 +11,7 @@ import { Send, CheckCircle, XCircle, Loader2 } from "lucide-react";
 interface CambiarEstadoProps {
   presupuestoId: string;
   estadoActual: string;
+  rolUsuario: string;
 }
 
 const transiciones: Record<string, string[]> = {
@@ -38,13 +39,17 @@ const varianteEstado: Record<string, "default" | "secondary" | "destructive" | "
   rechazado: "destructive",
 };
 
-export function CambiarEstado({ presupuestoId, estadoActual }: CambiarEstadoProps) {
+export function CambiarEstado({ presupuestoId, estadoActual, rolUsuario }: CambiarEstadoProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [estadoOptimista, setEstadoOptimista] = useState(estadoActual);
   const [error, setError] = useState<string | null>(null);
 
-  const opcionesDisponibles = transiciones[estadoOptimista] ?? [];
+  // Si no es admin, filtrar opciones que requieren admin (aprobar/rechazar)
+  const todasOpciones = transiciones[estadoOptimista] ?? [];
+  const opcionesDisponibles = rolUsuario === "admin"
+    ? todasOpciones
+    : todasOpciones.filter((e) => e !== "aprobado" && e !== "rechazado");
 
   if (opcionesDisponibles.length === 0) return null;
 
@@ -77,7 +82,10 @@ export function CambiarEstado({ presupuestoId, estadoActual }: CambiarEstadoProp
     }
   };
 
-  const opcionesActuales = transiciones[estadoOptimista] ?? [];
+  const todasOpcionesActuales = transiciones[estadoOptimista] ?? [];
+  const opcionesActuales = rolUsuario === "admin"
+    ? todasOpcionesActuales
+    : todasOpcionesActuales.filter((e) => e !== "aprobado" && e !== "rechazado");
 
   return (
     <Card>

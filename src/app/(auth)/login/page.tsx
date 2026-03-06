@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Leaf } from "lucide-react";
+import { useNombreEmpresa } from "@/hooks/use-nombre-empresa";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function LoginPage() {
+  const nombreEmpresa = useNombreEmpresa();
   const [email, setEmail] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [error, setError] = useState("");
@@ -42,7 +44,7 @@ export default function LoginPage() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
             <Leaf className="h-7 w-7" />
           </div>
-          <CardTitle className="text-2xl">Zinc Industrial</CardTitle>
+          <CardTitle className="text-2xl">{nombreEmpresa}</CardTitle>
           <CardDescription>Ingresa a tu cuenta para continuar</CardDescription>
         </CardHeader>
         <CardContent>
@@ -67,7 +69,12 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contrasena">Contraseña</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="contrasena">Contraseña</Label>
+                <Link href="/recuperar" className="text-xs text-primary hover:underline">
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
               <Input
                 id="contrasena"
                 type="password"
@@ -93,7 +100,7 @@ export default function LoginPage() {
         </CardContent>
       </Card>
       <p className="text-center text-xs text-muted-foreground mt-6">
-        © {new Date().getFullYear()} Zinc Industrial S.A.
+        © {new Date().getFullYear()} {nombreEmpresa}
       </p>
     </div>
   );

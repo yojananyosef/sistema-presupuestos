@@ -84,7 +84,16 @@ export async function PUT(
   if (datos.descripcion !== undefined) valoresActualizar.descripcion = datos.descripcion;
   if (datos.tiempoEjecucion !== undefined) valoresActualizar.tiempo_ejecucion = datos.tiempoEjecucion;
   if (datos.condiciones !== undefined) valoresActualizar.condiciones = datos.condiciones;
-  if (datos.estado !== undefined) valoresActualizar.estado = datos.estado;
+  if (datos.estado !== undefined) {
+    // Solo admin puede aprobar o rechazar presupuestos
+    if ((datos.estado === "aprobado" || datos.estado === "rechazado") && sesion.user.rol !== "admin") {
+      return NextResponse.json(
+        { error: "Solo un administrador puede aprobar o rechazar presupuestos" },
+        { status: 403 }
+      );
+    }
+    valoresActualizar.estado = datos.estado;
+  }
 
   if (datos.items) {
     const items = datos.items;

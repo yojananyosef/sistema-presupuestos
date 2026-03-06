@@ -254,6 +254,36 @@ Todas las tablas tienen RLS habilitado.
 ## Flujo de Estados (Presupuestos)
 
 ```
-borrador → emitido → aprobado
-                   → rechazado → emitido (reemitir)
+borrador → emitido → aprobado      (solo admin)
+                   → rechazado     (solo admin)
+                     rechazado → emitido (reemitir, cualquier usuario)
 ```
+
+**Restricción de negocio (app-level):** Solo los usuarios con rol `admin` pueden cambiar el estado a `aprobado` o `rechazado`. Los usuarios regulares solo pueden emitir borradores y reemitir rechazados.
+
+---
+
+## Reglas de Negocio (App-Level)
+
+| Regla | Descripción |
+|-------|-------------|
+| Solo admin aprueba/rechaza | La API `/api/presupuestos/[id]` (PUT) valida que `rol = 'admin'` para estados `aprobado` y `rechazado` |
+| No desactivar admin | La API `/api/configuracion` (PUT, toggleUsuario) impide desactivar usuarios con `rol = 'admin'` |
+| Registro público | Los nuevos usuarios se registran con `rol = 'usuario'` automáticamente |
+| Cambio de contraseña | Usuarios autenticados pueden cambiar su contraseña vía `/api/auth/cambiar-contrasena` |
+| Recuperación de contraseña | Flujo público vía Supabase Auth: `/recuperar` → email → `/nueva-contrasena` |
+
+---
+
+## Rutas de Autenticación
+
+| Ruta | Tipo | Descripción |
+|------|------|-------------|
+| `/login` | Página pública | Inicio de sesión |
+| `/registro` | Página pública | Registro de nuevos usuarios |
+| `/recuperar` | Página pública | Solicitar email de recuperación de contraseña |
+| `/nueva-contrasena` | Página pública | Establecer nueva contraseña (vía enlace de email) |
+| `/api/auth/login` | API pública | POST — Autenticación con email/contraseña |
+| `/api/auth/registro` | API pública | POST — Registro de usuario |
+| `/api/auth/recuperar` | API pública | POST — Enviar email de recuperación |
+| `/api/auth/cambiar-contrasena` | API protegida | POST — Cambiar contraseña (usuario logueado) |

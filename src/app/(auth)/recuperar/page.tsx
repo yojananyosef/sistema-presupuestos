@@ -2,22 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Leaf } from "lucide-react";
-import { useNombreEmpresa } from "@/hooks/use-nombre-empresa";
+import { Leaf, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export default function RegistroPage() {
-  const nombreEmpresa = useNombreEmpresa();
-  const [nombre, setNombre] = useState("");
+export default function RecuperarPage() {
   const [email, setEmail] = useState("");
-  const [contrasena, setContrasena] = useState("");
-  const [confirmarContrasena, setConfirmarContrasena] = useState("");
+  const [enviado, setEnviado] = useState(false);
   const [error, setError] = useState("");
-  const [exito, setExito] = useState(false);
   const [cargando, setCargando] = useState(false);
 
   const manejarSubmit = async (e: React.FormEvent) => {
@@ -25,27 +20,20 @@ export default function RegistroPage() {
     setError("");
     setCargando(true);
 
-    if (contrasena !== confirmarContrasena) {
-      setError("Las contraseñas no coinciden.");
-      setCargando(false);
-      return;
-    }
-
     try {
-      const res = await fetch("/api/auth/registro", {
+      const res = await fetch("/api/auth/recuperar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, email, contrasena, confirmarContrasena }),
+        body: JSON.stringify({ email }),
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        setError(data.error || "Error al crear la cuenta. Intente nuevamente.");
+        setError("Error al enviar el correo. Intente nuevamente.");
         setCargando(false);
         return;
       }
 
-      setExito(true);
+      setEnviado(true);
     } catch {
       setError("Error de conexión. Intente nuevamente.");
     } finally {
@@ -53,7 +41,7 @@ export default function RegistroPage() {
     }
   };
 
-  if (exito) {
+  if (enviado) {
     return (
       <div className="w-full max-w-md">
         <Card className="shadow-lg">
@@ -61,14 +49,17 @@ export default function RegistroPage() {
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-green-600 text-white">
               <Leaf className="h-7 w-7" />
             </div>
-            <CardTitle className="text-2xl">¡Cuenta creada!</CardTitle>
+            <CardTitle className="text-2xl">Revisa tu correo</CardTitle>
             <CardDescription>
-              Tu cuenta ha sido registrada exitosamente. Ya puedes iniciar sesión.
+              Si existe una cuenta con <strong>{email}</strong>, recibirás un enlace para restablecer tu contraseña.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/login">
-              <Button className="w-full">Ir a Iniciar Sesión</Button>
+              <Button variant="outline" className="w-full">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Volver al login
+              </Button>
             </Link>
           </CardContent>
         </Card>
@@ -83,8 +74,8 @@ export default function RegistroPage() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
             <Leaf className="h-7 w-7" />
           </div>
-          <CardTitle className="text-2xl">Crear Cuenta</CardTitle>
-          <CardDescription>Regístrate para acceder al sistema</CardDescription>
+          <CardTitle className="text-2xl">Recuperar Contraseña</CardTitle>
+          <CardDescription>Ingresa tu email y te enviaremos un enlace para restablecerla</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={manejarSubmit} className="space-y-4">
@@ -93,19 +84,6 @@ export default function RegistroPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-
-            <div className="space-y-2">
-              <Label htmlFor="nombre">Nombre completo</Label>
-              <Input
-                id="nombre"
-                type="text"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                required
-                autoComplete="name"
-                placeholder="Juan Pérez"
-              />
-            </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -120,48 +98,19 @@ export default function RegistroPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="contrasena">Contraseña</Label>
-              <Input
-                id="contrasena"
-                type="password"
-                value={contrasena}
-                onChange={(e) => setContrasena(e.target.value)}
-                required
-                autoComplete="new-password"
-                placeholder="Mínimo 6 caracteres"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmarContrasena">Confirmar contraseña</Label>
-              <Input
-                id="confirmarContrasena"
-                type="password"
-                value={confirmarContrasena}
-                onChange={(e) => setConfirmarContrasena(e.target.value)}
-                required
-                autoComplete="new-password"
-                placeholder="Repita la contraseña"
-              />
-            </div>
-
             <Button type="submit" className="w-full" disabled={cargando}>
-              {cargando ? "Creando cuenta..." : "Crear Cuenta"}
+              {cargando ? "Enviando..." : "Enviar enlace de recuperación"}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-4">
-            ¿Ya tienes cuenta?{" "}
             <Link href="/login" className="text-primary hover:underline font-medium">
-              Inicia sesión
+              <ArrowLeft className="h-3 w-3 inline mr-1" />
+              Volver al login
             </Link>
           </p>
         </CardContent>
       </Card>
-      <p className="text-center text-xs text-muted-foreground mt-6">
-        © {new Date().getFullYear()} {nombreEmpresa}
-      </p>
     </div>
   );
 }

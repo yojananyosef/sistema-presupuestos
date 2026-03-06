@@ -140,6 +140,23 @@ export async function PUT(request: NextRequest) {
   // Activar/desactivar usuario
   if (accion === "toggleUsuario") {
     const { id, activo } = body;
+
+    // No permitir desactivar a un administrador
+    if (!activo) {
+      const { data: perfil } = await supabase
+        .from("perfiles")
+        .select("rol")
+        .eq("id", id)
+        .single();
+
+      if (perfil?.rol === "admin") {
+        return NextResponse.json(
+          { error: "No se puede desactivar a un usuario administrador" },
+          { status: 403 }
+        );
+      }
+    }
+
     await supabase
       .from("perfiles")
       .update({ activo })
