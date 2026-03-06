@@ -19,6 +19,7 @@ interface SectionCardsProps {
   aprobados: number
   totalConDecision: number
   aprobadosMes: number
+  montoAprobadoMes: number
   productosActivos: number
 }
 
@@ -31,6 +32,7 @@ export function SectionCards({
   aprobados,
   totalConDecision,
   aprobadosMes,
+  montoAprobadoMes,
   productosActivos,
 }: SectionCardsProps) {
   return (
@@ -132,16 +134,16 @@ export function SectionCards({
           <CardAction>
             <Badge variant="outline">
               <TrendingUp className="size-3" />
-              {productosActivos} productos
+              {formatearMoneda(montoAprobadoMes)}
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            {productosActivos} productos activos <TrendingUp className="size-4" />
+            {formatearMoneda(montoAprobadoMes)} aprobados este mes <TrendingUp className="size-4" />
           </div>
           <div className="text-muted-foreground">
-            Catálogo disponible para cotizar
+            {productosActivos} productos activos en catálogo
           </div>
         </CardFooter>
       </Card>

@@ -41,10 +41,10 @@ export default async function DashboardPage() {
     supabase.from("presupuestos").select("*", { count: "exact", head: true }),
     supabase.from("presupuestos").select("total, estado").gte("creado_en", inicioMes.toISOString()).neq("estado", "rechazado"),
     supabase.from("presupuestos").select("total").gte("creado_en", inicioMesAnterior.toISOString()).lt("creado_en", inicioMes.toISOString()).neq("estado", "rechazado"),
-    supabase.from("presupuestos").select("*").order("creado_en", { ascending: false }).limit(5),
+    supabase.from("presupuestos").select("id, correlativo, cliente_nombre, estado, total, creado_en").order("creado_en", { ascending: false }).limit(5),
     supabase.from("presupuestos").select("estado, total").gte("creado_en", inicio12Meses.toISOString()),
     supabase.from("productos_zinc").select("*", { count: "exact", head: true }).eq("activo", true),
-    supabase.from("presupuestos").select("creado_en, total").gte("creado_en", inicio6Meses.toISOString()).order("creado_en", { ascending: true }),
+    supabase.from("presupuestos").select("creado_en, total").gte("creado_en", inicio6Meses.toISOString()).neq("estado", "rechazado").order("creado_en", { ascending: true }),
   ]);
 
   const totalPresupuestos = totalRes.count ?? 0;
@@ -74,21 +74,27 @@ export default async function DashboardPage() {
     : montoMes > 0 ? 100 : 0;
 
   const aprobadosMes = presupuestosMes.filter(p => p.estado === "aprobado").length;
+  const montoAprobadoMes = presupuestosMes
+    .filter(p => p.estado === "aprobado")
+    .reduce((sum, p) => sum + (p.total ?? 0), 0);
 
-  // Datos mensuales para el chart (últimos 6 meses)
+  // Datos mensuales para el chart (últimos 6 meses) — agrupación en un solo pass
   const datosMensuales: { mes: string; cantidad: number; monto: number }[] = [];
+  const mesesIndex = new Map<string, number>();
   for (let i = 5; i >= 0; i--) {
     const d = new Date(ahora.getFullYear(), ahora.getMonth() - i, 1);
     const mesKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    mesesIndex.set(mesKey, datosMensuales.length);
     datosMensuales.push({ mes: NOMBRE_MESES[d.getMonth()], cantidad: 0, monto: 0 });
-    (chartRes.data ?? []).forEach((p: { creado_en: string; total: number }) => {
-      const pDate = new Date(p.creado_en);
-      const pKey = `${pDate.getFullYear()}-${String(pDate.getMonth() + 1).padStart(2, "0")}`;
-      if (pKey === mesKey) {
-        datosMensuales[datosMensuales.length - 1].cantidad++;
-        datosMensuales[datosMensuales.length - 1].monto += p.total ?? 0;
-      }
-    });
+  }
+  for (const p of (chartRes.data ?? []) as { creado_en: string; total: number }[]) {
+    const pDate = new Date(p.creado_en);
+    const pKey = `${pDate.getFullYear()}-${String(pDate.getMonth() + 1).padStart(2, "0")}`;
+    const idx = mesesIndex.get(pKey);
+    if (idx !== undefined) {
+      datosMensuales[idx].cantidad++;
+      datosMensuales[idx].monto += p.total ?? 0;
+    }
   }
 
   const mesActual = MESES_LARGO[ahora.getMonth()];
@@ -121,6 +127,7 @@ export default async function DashboardPage() {
         aprobados={estadosMap.aprobado ?? 0}
         totalConDecision={totalConDecision}
         aprobadosMes={aprobadosMes}
+        montoAprobadoMes={montoAprobadoMes}
         productosActivos={productosActivos}
       />
 
