@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const rutasPublicas = ["/login", "/widget"];
+const rutasPublicas = ["/login", "/registro", "/widget"];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -11,6 +11,7 @@ export async function proxy(request: NextRequest) {
     rutasPublicas.some((r) => pathname.startsWith(r)) ||
     pathname.startsWith("/api/widget") ||
     pathname.startsWith("/api/contacto") ||
+    pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next") ||
     pathname.includes(".")
   ) {
@@ -59,8 +60,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Usuario autenticado intentando ir a /login — redirigir al dashboard
-  if (pathname === "/login") {
+  // Usuario autenticado intentando ir a /login o /registro — redirigir al dashboard
+  if (pathname === "/login" || pathname === "/registro") {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
